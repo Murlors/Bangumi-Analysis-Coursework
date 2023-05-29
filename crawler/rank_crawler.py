@@ -1,18 +1,23 @@
-from bs4 import BeautifulSoup
-from base_crawler import BaseCrawler
 import csv
+import os
+
+from bs4 import BeautifulSoup
+
+from base_crawler import BaseCrawler
 
 
 class RankCrawler(BaseCrawler):
-    def __init__(self, type, max_page, headers=None):
+    def __init__(self, type, data_path, start_page, end_page, headers=None):
         assert type in ['anime', 'book', 'music', 'game', 'real']
         self.type = type
-        self.max_page = max_page
+        self.data_path = data_path
+        self.start_page = start_page
+        self.end_page = end_page
         self.url = f'https://bgm.tv/{self.type}/browser?sort=rank'
         super().__init__(headers=headers)
 
     def save_subject_codes(self, subject_codes):
-        file_name = f'./data/{self.type}_subject_codes.csv'
+        file_name = os.path.join(self.data_path, f'{self.type}_subject_codes.csv')
         with open(file_name, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['subject_code'])
@@ -20,7 +25,7 @@ class RankCrawler(BaseCrawler):
 
     def get_subject_codes(self):
         subject_codes = set()
-        for page in range(1, self.max_page + 1):
+        for page in range(self.start_page, self.end_page):
             url = self.url + f'&page={page}'
             html = super().fetch_data(url)
             if html:
@@ -36,5 +41,5 @@ class RankCrawler(BaseCrawler):
 
 
 if __name__ == '__main__':
-    rank_crawler = RankCrawler('music', 2)
+    rank_crawler = RankCrawler('music', 'data', 1, 2)
     subject_codes = rank_crawler.get_subject_codes()

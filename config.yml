@@ -1,0 +1,8 @@
+crawler:
+  type: 'music' # anime, book, music, game, real
+  start: 1 # start page
+  end: 2 # end page
+  user-agent: 'murlors/bangumi-analysis-coursework (https://github.com/murlors/Bangumi-Analysis-Coursework)'
+
+data:
+  path: './data' # data path

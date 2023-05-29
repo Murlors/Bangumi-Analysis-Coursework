@@ -1,10 +1,14 @@
-from base_crawler import BaseCrawler
 import json
+import os
+
 import pandas as pd
+
+from base_crawler import BaseCrawler
 
 
 class MusicCrawler(BaseCrawler):
-    def __init__(self, headers=None):
+    def __init__(self, data_path, headers=None):
+        self.data_path = data_path
         # url = f'https://bgm.tv/subject/{subject_code}/'
         self.api = 'https://api.bgm.tv/v0/subjects/{}'
         super().__init__(headers=headers)
@@ -23,9 +27,8 @@ class MusicCrawler(BaseCrawler):
     #     else:
     #         return None
 
-    @staticmethod
-    def save_music_info(music_infos):
-        file_name = './data/music_infos.csv'
+    def save_music_info(self, music_infos):
+        file_name = os.path.join(self.data_path, 'music_infos.csv')
         df = pd.DataFrame(music_infos)
         df.to_csv(file_name, index=False)
 
@@ -79,5 +82,5 @@ if __name__ == '__main__':
     headers = {
         'User-Agent': 'murlors/bangumi-analysis-coursework (https://github.com/murlors/Bangumi-Analysis-Coursework)'
     }
-    music_crawler = MusicCrawler(headers)
+    music_crawler = MusicCrawler('data', headers)
     music_info = music_crawler.get_music_info(['163164', '238923'])
