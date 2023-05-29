@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from base_crawler import BaseCrawler
+from .base_crawler import BaseCrawler
 
 
 class MusicCrawler(BaseCrawler):

@@ -3,7 +3,7 @@ import os
 
 from bs4 import BeautifulSoup
 
-from base_crawler import BaseCrawler
+from .base_crawler import BaseCrawler
 
 
 class RankCrawler(BaseCrawler):
@@ -25,7 +25,7 @@ class RankCrawler(BaseCrawler):
 
     def get_subject_codes(self):
         subject_codes = set()
-        for page in range(self.start_page, self.end_page):
+        for page in range(self.start_page, self.end_page + 1):
             url = self.url + f'&page={page}'
             html = super().fetch_data(url)
             if html:

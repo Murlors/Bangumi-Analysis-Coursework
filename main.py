@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import yaml
 
@@ -9,7 +10,7 @@ def get_hparams():
     parser = argparse.ArgumentParser()
     # use local saved info? (local path)
     parser.add_argument('-l', '--local', action='store_true', help='是否使用本地保存的信息')
-    parser.add_argument('-p', '--path', type=str, default='./data', help='本地保存的信息路径')
+    parser.add_argument('-p', '--path', type=str, default='data', help='本地保存的信息路径')
 
     parser.add_argument('-cfg', '--config', type=str, help='配置文件路径')
 
@@ -29,12 +30,12 @@ def get_config(config_path):
 
 def parse_args(parser):
     args = parser.parse_args()
-    if args.config:
+    if args.config and os.path.exists(args.config):
         config = get_config(args.config)
         args.type = config['crawler']['type']
         args.start = config['crawler']['start']
         args.end = config['crawler']['end']
-        args.user_agent = config['crawler']['user_agent']
+        args.user_agent = config['crawler']['user-agent']
         args.path = config['data']['path']
     return args
 
@@ -56,3 +57,6 @@ def main():
         }
         music_crawler = crawler.MusicCrawler(args.path, headers)
         music_infos = music_crawler.get_music_info(subject_codes)
+
+if __name__ == '__main__':
+    main()
