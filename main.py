@@ -83,11 +83,16 @@ def main():
 
     tag_analysis.generate_wordcloud(tag_counts)
 
-    year_counts = tag_analysis.count_year_music()
-    tag_analysis.plot_year_music_trend(year_counts)
-
     tag_year_counts = tag_analysis.count_tag_year_frequency(min_count=100, top_n=30)
     tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
+
+    if args.type == "music":
+        music_analysis = analysis.MusicAnalysis(
+            os.path.join(args.path, f"music_infos.csv")
+        )
+        year_counts = music_analysis.count_year_music()
+        music_analysis.plot_year_music_trend(year_counts)
+
 
 
 if __name__ == "__main__":

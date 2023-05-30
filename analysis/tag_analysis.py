@@ -56,23 +56,6 @@ class TagAnalysis:
         ).generate_from_frequencies(tag_counts)
         wordcloud.to_file(os.path.join(self.save_path, "tag_wordcloud.png"))
 
-    def count_year_music(self):
-        """
-        统计每年的音乐数量, 并返回一个Series对象
-        """
-        year_counts = self.data.groupby("year").size()
-        return year_counts
-
-    def plot_year_music_trend(self, year_counts):
-        """
-        使用折线图展示每年的优秀音乐数量
-        """
-        year_counts.plot()
-        plt.xlabel("年份")
-        plt.ylabel("优秀音乐数量")
-        plt.savefig(os.path.join(self.save_path, "year_music_trend.png"))
-        plt.clf()
-
     def count_tag_year_frequency(self, min_count=100, top_n=30):
         """
         计算不同年份和不同tag之间的关系, 并返回一个DataFrame对象
@@ -108,9 +91,6 @@ if __name__ == "__main__":
     tag_analysis.plot_tag_counts(tag_counts, 20)
 
     tag_analysis.generate_wordcloud(tag_counts)
-
-    year_counts = tag_analysis.count_year_music()
-    tag_analysis.plot_year_music_trend(year_counts)
 
     tag_year_counts = tag_analysis.count_tag_year_frequency(100, 30)
     tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
