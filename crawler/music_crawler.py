@@ -10,7 +10,7 @@ class MusicCrawler(BaseCrawler):
     def __init__(self, data_path, headers=None):
         self.data_path = data_path
         # url = f'https://bgm.tv/subject/{subject_code}/'
-        self.api = 'https://api.bgm.tv/v0/subjects/{}'
+        self.api = "https://api.bgm.tv/v0/subjects/{}"
         super().__init__(headers=headers)
 
     # def get_music_info(self):
@@ -28,7 +28,7 @@ class MusicCrawler(BaseCrawler):
     #         return None
 
     def save_music_info(self, music_infos):
-        file_name = os.path.join(self.data_path, 'music_infos.csv')
+        file_name = os.path.join(self.data_path, "music_infos.csv")
         df = pd.DataFrame(music_infos)
         df.to_csv(file_name, index=False)
 
@@ -41,46 +41,66 @@ class MusicCrawler(BaseCrawler):
         collection(on_hold, dropped, wish, collect, doing), tags(name:count).
         """
         music_infos = []
-        for subject_code in subject_codes:
-            api = self.api.format(subject_code)
-            json_data = super().fetch_data(api)
-            if json_data:
-                music_info = json.loads(json_data)
-
-                # pop unwanted keys
-                for unwanted_key in ['nsfw', 'locked', ]:
-                    music_info.pop(unwanted_key)
-                # unpack images dict
-                images = {f'{size}_cover': url for size, url in music_info['images'].items()}
-                music_info.pop('images')
-                music_info.update(images)
-                # unpack infobox dict
-                music_info['tags'] = {tag['name']: tag['count'] for tag in music_info['tags']}
-
-                infobox = {item['key']: item['value'] for item in music_info['infobox']}
-                music_info.pop('infobox')
-                music_info.update(infobox)
-                # unpack rating dict
-                rank = music_info['rating']['rank']
-                votes = music_info['rating']['total']
-                ratings = music_info['rating']['count']
-                rating_score = sum([int(rating) * count for rating, count in ratings.items()]) / votes
-                music_info.pop('rating')
-                music_info['rank'] = rank
-                music_info['votes'] = votes
-                music_info['ratings'] = ratings
-                music_info['rating_score'] = rating_score
-
-                music_infos.append(music_info)
+        truncate = 50
+        # 每次截取50个subject_code
+        for i in range(0, len(subject_codes), truncate):
+            # 若剩余的subject_code不足50个，则截取剩余的subject_code
+            if i + truncate > len(subject_codes):
+                api = [
+                    self.api.format(subject_code) for subject_code in subject_codes[i:]
+                ]
             else:
-                break
-        self.save_music_info(music_infos)
+                api = [
+                    self.api.format(subject_code)
+                    for subject_code in subject_codes[i : i + trunck]
+                ]
+
+            json_datas = super().fetch_data(api)
+            self.process_music_info(music_infos, json_datas)
+            print(f"已获取{len(music_infos)}条音乐信息")
+            self.save_music_info(music_infos)
         return music_infos
 
+    def process_music_info(self, music_infos, json_datas):
+        for json_data in json_datas:
+            music_info = json.loads(json_data)
 
-if __name__ == '__main__':
+            # pop unwanted keys
+            # for unwanted_key in ['nsfw', 'locked', ]:
+            #     music_info.pop(unwanted_key)
+            # unpack images dict
+            images = {
+                f"{size}_cover": url for size, url in music_info["images"].items()
+            }
+            music_info.pop("images")
+            music_info.update(images)
+            # unpack infobox dict
+            music_info["tags"] = {
+                tag["name"]: tag["count"] for tag in music_info["tags"]
+            }
+
+            infobox = {item["key"]: item["value"] for item in music_info["infobox"]}
+            music_info.pop("infobox")
+            music_info.update(infobox)
+            # unpack rating dict
+            rank = music_info["rating"]["rank"]
+            votes = music_info["rating"]["total"]
+            ratings = music_info["rating"]["count"]
+            rating_score = (
+                sum([int(rating) * count for rating, count in ratings.items()]) / votes
+            )
+            music_info.pop("rating")
+            music_info["rank"] = rank
+            music_info["votes"] = votes
+            music_info["ratings"] = ratings
+            music_info["rating_score"] = rating_score
+
+            music_infos.append(music_info)
+
+
+if __name__ == "__main__":
     headers = {
-        'User-Agent': 'murlors/bangumi-analysis-coursework (https://github.com/murlors/Bangumi-Analysis-Coursework)'
+        "User-Agent": "murlors/bangumi-analysis-coursework (https://github.com/murlors/Bangumi-Analysis-Coursework)"
     }
-    music_crawler = MusicCrawler('data', headers)
-    music_info = music_crawler.get_music_info(['163164', '238923'])
+    music_crawler = MusicCrawler("data", headers)
+    music_info = music_crawler.get_music_info(["163164", "238923"])

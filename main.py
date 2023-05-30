@@ -1,11 +1,12 @@
 import argparse
+import csv
 import os
-from matplotlib import pyplot as plt
 
 import yaml
+from matplotlib import pyplot as plt
 
-import crawler
 import analysis
+import crawler
 
 
 def get_hparams():
@@ -16,7 +17,9 @@ def get_hparams():
     parser.add_argument("-fig", "--figure", type=str, help="本地保存的图片路径")
     parser.add_argument("-t", "--type", type=str, help="爬取的条目类型")
 
-    parser.add_argument("-cfg", "--config", type=str,default='config.yml', help="配置文件路径")
+    parser.add_argument(
+        "-cfg", "--config", type=str, default="config.yml", help="配置文件路径"
+    )
 
     parser.add_argument("-s", "--start", type=int, help="爬取的开始页数")
     parser.add_argument("-e", "--end", type=int, help="爬取的结束页数")
@@ -47,7 +50,7 @@ def parse_args(parser):
         args.start = 1
         args.end = 1
         args.path = "data"
-        args.figure = "figure"
+        args.figure = "figures"
         args.rcParams = {
             "font.family": "SimHei",
             "savefig.dpi": 300,
@@ -67,8 +70,21 @@ def main():
 
     if not args.local:
         # get music subject codes
-        rank_crawler = crawler.RankCrawler(args.type, args.path, args.start, args.end)
-        subject_codes = rank_crawler.get_subject_codes()
+        subject_codes_path = os.path.join(
+            args.path, f"{args.type}_subject_codes_{args.start}_{args.end}.csv"
+        )
+        if not os.path.exists(subject_codes_path):
+            rank_crawler = crawler.RankCrawler(
+                args.type, args.path, args.start, args.end
+            )
+            subject_codes = rank_crawler.get_subject_codes()
+        else:
+            with open(subject_codes_path, "r") as f:
+                # skip header
+                csv_reader = csv.reader(f)
+                next(csv_reader)
+                subject_codes = [row[0] for row in csv_reader]
+
         # get music subject info
         headers = {"User-Agent": args.user_agent}
         music_crawler = crawler.MusicCrawler(args.path, headers)
@@ -79,7 +95,7 @@ def main():
     )
 
     tag_counts = tag_analysis.count_tag_frequency(min_count=10)
-    tag_analysis.plot_tag_counts(tag_counts, top_n=20)
+    tag_analysis.plot_tag_counts(tag_counts, top_n=30)
 
     tag_analysis.generate_wordcloud(tag_counts)
 
@@ -92,7 +108,6 @@ def main():
         )
         year_counts = music_analysis.count_year_music()
         music_analysis.plot_year_music_trend(year_counts)
-
 
 
 if __name__ == "__main__":
