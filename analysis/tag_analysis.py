@@ -1,16 +1,20 @@
 import collections
 import os
-import pandas as pd
+
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud
+import pandas as pd
 import seaborn as sns
+from wordcloud import WordCloud
 
 
 class TagAnalysis:
     def __init__(self, file_path, save_path="figures"):
-        self.data = pd.read_csv(file_path)
+        self.data = pd.read_csv(file_path, parse_dates=["date"])
         self.data["tags"] = self.data["tags"].apply(eval)
-        self.data["year"] = self.data["date"].apply(lambda x: int(x.split("-")[0]))
+        self.data = self.data.dropna(subset=["date"])
+        self.data[["year", "month", "day"]] = (
+            self.data["date"].dt.strftime("%Y-%m-%d").str.split("-", expand=True)
+        )
         self.save_path = save_path
 
     def count_tag_frequency(self, min_count):
@@ -48,7 +52,7 @@ class TagAnalysis:
         """
         wordcloud = WordCloud(
             background_color="white",
-            max_words=500,
+            max_words=1000,
             font_path="msyh.ttc",
             width=1920,
             height=1080,
@@ -68,8 +72,7 @@ class TagAnalysis:
             .groupby("year")
             .sum()
             .T.loc[lambda df: df.sum(axis=1) > min_count]
-            .sort_values(by=self.data["year"].max(), ascending=False)
-            .iloc[:top_n]
+            .nlargest(top_n, columns=self.data["year"].max())
         )
         return tag_year_counts
 
@@ -85,6 +88,13 @@ class TagAnalysis:
 
 
 if __name__ == "__main__":
+    plt.rcParams.update(
+        {
+            "font.family": "Microsoft YaHei",
+            "savefig.dpi": 300,
+            "figure.figsize": [12, 8],
+        }
+    )
     tag_analysis = TagAnalysis("data/music_infos.csv")
 
     tag_counts = tag_analysis.count_tag_frequency(10)

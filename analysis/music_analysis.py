@@ -1,13 +1,16 @@
 import os
 
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 class MusicAnalysis:
     def __init__(self, file_path, save_path="figures"):
-        self.data = pd.read_csv(file_path)
-        self.data["year"] = self.data["date"].apply(lambda x: int(x.split("-")[0]))
+        self.data = pd.read_csv(file_path, parse_dates=["date"])
+        self.data = self.data.dropna(subset=["date"])
+        self.data[["year", "month", "day"]] = (
+            self.data["date"].dt.strftime("%Y-%m-%d").str.split("-", expand=True)
+        )
         self.data["company"] = self.data["厂牌"]
         self.save_path = save_path
 
