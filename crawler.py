@@ -67,8 +67,10 @@ def main():
             subject_codes = [row[0] for row in csv_reader]
     # get music subject info
     headers = {"User-Agent": args.user_agent}
-    music_crawler = crawler.MusicCrawler(args.path, headers)
-    music_crawler.get_music_info(subject_codes)
+
+    if args.type == "music":
+        music_crawler = crawler.MusicCrawler(args.path, headers)
+        music_crawler.get_music_info(subject_codes)
 
 
 if __name__ == "__main__":
