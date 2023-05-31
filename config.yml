@@ -10,6 +10,7 @@ data:
 figure:
   path: 'figures'
   rcParams: 
-    font.family: 'SimHei'
-    savefig.dpi: 300
-    figure.figsize: [12, 8]
+    font.family: 'Microsoft YaHei' # 中文字体
+    savefig.dpi: 300 # 图片分辨率
+    figure.figsize: [12, 8] # 图片大小
+    figure.autolayout: True # 自动调整布局

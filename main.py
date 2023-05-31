@@ -52,9 +52,10 @@ def parse_args(parser):
         args.path = "data"
         args.figure = "figures"
         args.rcParams = {
-            "font.family": "SimHei",
+            "font.family": "Microsoft YaHei",
             "savefig.dpi": 300,
             "figure.figsize": [12, 8],
+            "figure.autolayout": True,
         }
     if not os.path.exists(args.path):
         os.makedirs(args.path)
