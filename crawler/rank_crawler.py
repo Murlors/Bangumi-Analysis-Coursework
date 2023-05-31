@@ -31,15 +31,13 @@ class RankCrawler(BaseCrawler):
         for page in range(self.start_page, self.end_page + 1):
             url = self.url + f"&page={page}"
             html = super().fetch_data(url)
-            if html:
-                soup = BeautifulSoup(html, "lxml")
-                
-                subjects = soup.select(".subjectCover")
-                subject_codes.update(
-                    (subject["href"].split("/")[-1] for subject in subjects)
-                )
-            else:
+            if not html:
                 break
+            soup = BeautifulSoup(html, "lxml")
+            subjects = soup.select(".subjectCover")
+            subject_codes.update(
+                (subject["href"].split("/")[-1] for subject in subjects)
+            )
         self.save_subject_codes(subject_codes)
         return subject_codes
 

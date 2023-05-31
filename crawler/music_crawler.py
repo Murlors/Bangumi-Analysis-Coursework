@@ -9,11 +9,11 @@ from .base_crawler import BaseCrawler
 class MusicCrawler(BaseCrawler):
     def __init__(self, data_path, headers=None):
         self.data_path = data_path
-        # url = f'https://bgm.tv/subject/{subject_code}/'
         self.api = "https://api.bgm.tv/v0/subjects/{}"
         super().__init__(headers=headers)
 
     # def get_music_info(self):
+    #     url = f'https://bgm.tv/subject/{subject_code}/'
     #     html = super().fetch_data()
     #     if html:
     #         soup = BeautifulSoup(html, 'lxml')
@@ -29,8 +29,8 @@ class MusicCrawler(BaseCrawler):
 
     def save_music_info(self, music_infos):
         file_name = os.path.join(self.data_path, "music_infos.csv")
-        df = pd.DataFrame(music_infos)
-        df.to_csv(file_name, index=False)
+        music_infos_df = pd.DataFrame(music_infos)
+        music_infos_df.to_csv(file_name, index=False)
 
     def get_music_info(self, subject_codes):
         """
@@ -44,17 +44,10 @@ class MusicCrawler(BaseCrawler):
         truncate = 50
         # 每次截取50个subject_code
         for i in range(0, len(subject_codes), truncate):
-            # 若剩余的subject_code不足50个，则截取剩余的subject_code
-            if i + truncate > len(subject_codes):
-                api = [
-                    self.api.format(subject_code) for subject_code in subject_codes[i:]
-                ]
-            else:
-                api = [
-                    self.api.format(subject_code)
-                    for subject_code in subject_codes[i : i + trunck]
-                ]
-
+            api = [
+                self.api.format(subject_code)
+                for subject_code in subject_codes[i : i + truncate]
+            ]
             json_datas = super().fetch_data(api)
             self.process_music_info(music_infos, json_datas)
             print(f"已获取{len(music_infos)}条音乐信息")
