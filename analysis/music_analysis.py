@@ -57,7 +57,6 @@ class MusicAnalysis:
         plt.xlabel("")
         plt.ylabel("")
         plt.axis("equal")
-        plt.tight_layout()
         plt.savefig(os.path.join(self.save_path, "company_music_pie.png"))
         plt.clf()
 
@@ -68,6 +67,7 @@ if __name__ == "__main__":
             "font.family": "Microsoft YaHei",
             "savefig.dpi": 300,
             "figure.figsize": [12, 8],
+            'figure.autolayout': True,
         }
     )
     music_analysis = MusicAnalysis("data/music_infos.csv")

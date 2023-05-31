@@ -54,9 +54,9 @@ class TagAnalysis:
             background_color="white",
             max_words=1000,
             font_path="msyh.ttc",
-            width=1920,
-            height=1080,
-            max_font_size=500,
+            width=3840,
+            height=2160,
+            max_font_size=800,
         ).generate_from_frequencies(tag_counts)
         wordcloud.to_file(os.path.join(self.save_path, "tag_wordcloud.png"))
 
@@ -72,7 +72,7 @@ class TagAnalysis:
             .groupby("year")
             .sum()
             .T.loc[lambda df: df.sum(axis=1) > min_count]
-            .nlargest(top_n, columns=self.data["year"].max())
+            .nlargest(top_n, columns="2020")
         )
         return tag_year_counts
 
@@ -80,9 +80,10 @@ class TagAnalysis:
         """
         使用热力图展示不同年份和不同tag之间的关系
         """
-        sns.heatmap(tag_year_counts, cmap="Blues", xticklabels=True)
+        sns.heatmap(tag_year_counts, cmap="Blues", vmax=500)
         plt.xlabel("年份")
         plt.ylabel("tag")
+        plt.xticks(rotation=45)
         plt.savefig(os.path.join(self.save_path, "tag_year_counts_heatmap.png"))
         plt.clf()
 
@@ -93,6 +94,7 @@ if __name__ == "__main__":
             "font.family": "Microsoft YaHei",
             "savefig.dpi": 300,
             "figure.figsize": [12, 8],
+            "figure.autolayout": True,
         }
     )
     tag_analysis = TagAnalysis("data/music_infos.csv")
