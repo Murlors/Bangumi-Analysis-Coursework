@@ -8,6 +8,12 @@ import crawler
 
 
 def get_hparams():
+    """
+    获取命令行参数
+    
+    Returns:
+        ArgumentParser: 命令行参数解析器
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-p", "--path", type=str, help="本地保存的信息路径")
@@ -25,12 +31,30 @@ def get_hparams():
 
 
 def get_config(config_path):
+    """
+    读取配置文件
+    
+    Args:
+        config_path (str): 配置文件路径
+        
+    Returns:
+        dict: 包含配置信息的字典
+    """
     with open(config_path, "r") as f:
         config = yaml.safe_load(f)
     return config
 
 
 def parse_args(parser):
+    """
+    解析命令行参数
+    
+    Args:
+        parser (ArgumentParser): 命令行参数解析器
+        
+    Returns:
+        Namespace: 包含命令行参数的命名空间
+    """
     args = parser.parse_args()
     if args.config and os.path.exists(args.config):
         config = get_config(args.config)
@@ -50,6 +74,9 @@ def parse_args(parser):
 
 
 def main():
+    """
+    主函数，用于爬取数据
+    """
     parser = get_hparams()
     args = parse_args(parser)
 

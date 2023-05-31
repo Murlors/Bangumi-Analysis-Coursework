@@ -9,6 +9,13 @@ from wordcloud import WordCloud
 
 class TagAnalysis:
     def __init__(self, file_path, save_path="figures"):
+        """
+        初始化TagAnalysis对象
+
+        Args:
+            file_path (str): 数据文件路径
+            save_path (str, optional): 图片保存路径. Defaults to "figures".
+        """
         self.data = pd.read_csv(file_path, parse_dates=["date"])
         self.data["tags"] = self.data["tags"].apply(eval)
         self.data = self.data.dropna(subset=["date"])
@@ -19,7 +26,13 @@ class TagAnalysis:
 
     def count_tag_frequency(self, min_count):
         """
-        统计每个tag的数量, 并返回一个Counter对象, 仅统计选择量>=min_count的tag
+        统计选择量>=min_count的tag数量
+
+        Args:
+            min_count (int): 最小选择量
+
+        Returns:
+            Counter: tag数量统计结果
         """
         tag_counts = collections.Counter(
             tag
@@ -31,7 +44,11 @@ class TagAnalysis:
 
     def plot_tag_counts(self, tag_counts, top_n):
         """
-        使用竖向柱状图降序展示前top_n个tag的数量
+        使用水平柱状图降序展示前top_n个tag的数量
+
+        Args:
+            tag_counts (Counter): tag数量统计结果
+            top_n (int): 展示的tag数量
         """
         most_common = dict(tag_counts.most_common(top_n))
         plt.barh(
@@ -48,11 +65,15 @@ class TagAnalysis:
 
     def generate_wordcloud(self, tag_counts):
         """
-        使用词云图展示tag的词频
+        使用词云展示tag的词频
+
+        Args:
+            tag_counts (Counter): tag数量统计结果
         """
         wordcloud = WordCloud(
             background_color="white",
             max_words=1000,
+            # font_path="xiaolaisc-regular.ttf",
             font_path="msyh.ttc",
             width=3840,
             height=2160,
@@ -62,7 +83,14 @@ class TagAnalysis:
 
     def count_tag_year_frequency(self, min_count=100, top_n=30):
         """
-        计算不同年份和不同tag之间的关系, 并返回一个DataFrame对象
+        计算不同年份和不同tag之间的关系
+
+        Args:
+            min_count (int, optional): 最小选择量. Defaults to 100.
+            top_n (int, optional): 展示的tag数量. Defaults to 30.
+
+        Returns:
+            DataFrame: 不同年份和不同tag之间的关系
         """
         tag_year_counts = (
             pd.json_normalize(self.data["tags"])
@@ -79,6 +107,9 @@ class TagAnalysis:
     def plot_tag_year_counts_heatmap(self, tag_year_counts):
         """
         使用热力图展示不同年份和不同tag之间的关系
+
+        Args:
+            tag_year_counts (DataFrame): 不同年份和不同tag之间的关系
         """
         sns.heatmap(tag_year_counts, cmap="Blues", vmax=500)
         plt.xlabel("年份")

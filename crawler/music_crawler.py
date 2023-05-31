@@ -8,6 +8,13 @@ from .base_crawler import BaseCrawler
 
 class MusicCrawler(BaseCrawler):
     def __init__(self, data_path, headers=None):
+        """
+        初始化MusicCrawler对象
+
+        Args:
+            data_path (str): 数据保存路径
+            headers (dict, optional): 请求头. Defaults to None.
+        """
         self.data_path = data_path
         self.api = "https://api.bgm.tv/v0/subjects/{}"
         super().__init__(headers=headers)
@@ -28,21 +35,31 @@ class MusicCrawler(BaseCrawler):
     #         return None
 
     def save_music_info(self, music_infos):
+        """
+        将音乐信息保存到CSV文件中
+        
+        Args:
+            music_infos (list): 包含音乐信息的列表
+        """
         file_name = os.path.join(self.data_path, "music_infos.csv")
         music_infos_df = pd.DataFrame(music_infos)
         music_infos_df.to_csv(file_name, index=False)
 
     def get_music_info(self, subject_codes):
         """
-        :param subject_codes: list of subject_code
-        :return: a dict of music info containing:
-        id, type, name, name_cn, summary, nsfw, locked, platform, images[large,common,medium,small,grid](cover),
-        infobox, volumes, eps, total_episodes, rating(rank, total, count, score),
-        collection(on_hold, dropped, wish, collect, doing), tags(name:count).
+        获取音乐信息
+        
+        Args:
+            subject_codes (list): 包含音乐条目代码的列表
+            
+        Returns:
+            list[dict]: 包含多个音乐信息字典的列表，音乐信息如：
+            id, type, name, name_cn, summary, nsfw, locked, platform, images[large,common,medium,small,grid](cover),
+            infobox, volumes, eps, total_episodes, rating(rank, total, count, score),
+            collection(on_hold, dropped, wish, collect, doing), tags(name:count).
         """
         music_infos = []
         truncate = 50
-        # 每次截取50个subject_code
         for i in range(0, len(subject_codes), truncate):
             api = [
                 self.api.format(subject_code)
@@ -55,6 +72,13 @@ class MusicCrawler(BaseCrawler):
         return music_infos
 
     def process_music_info(self, music_infos, json_datas):
+        """
+        处理音乐信息
+        
+        Args:
+            music_infos (list): 包含音乐信息的列表
+            json_datas (list): 包含音乐信息的JSON数据
+        """
         for json_data in json_datas:
             music_info = json.loads(json_data)
 
