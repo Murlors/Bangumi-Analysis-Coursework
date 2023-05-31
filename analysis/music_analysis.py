@@ -12,6 +12,7 @@ class MusicAnalysis:
             self.data["date"].dt.strftime("%Y-%m-%d").str.split("-", expand=True)
         )
         self.data["company"] = self.data["厂牌"]
+        self.data["composers"] = self.data["作曲"].str.replace("、", "|").str.split("|")
         self.save_path = save_path
 
     def count_year_music(self):
@@ -59,6 +60,30 @@ class MusicAnalysis:
         plt.axis("equal")
         plt.savefig(os.path.join(self.save_path, "company_music_pie.png"))
         plt.clf()
+        
+    def count_composer_frequency(self):
+        """
+        统计每个作曲家的数量, 并返回一个Series对象
+        """
+        composer_counts = self.data["composers"].explode().value_counts()
+        return composer_counts
+
+    def plot_composer_counts(self, composer_counts, top_n):
+        """
+        使用水平柱状图展示前top_n个作曲家的数量
+        """
+        most_common = composer_counts.nlargest(top_n)
+        plt.barh(
+            most_common.index,
+            most_common.values,
+            color="steelblue",
+            alpha=0.8,
+        )
+        plt.title("作曲家数量统计")
+        plt.xlabel("数量")
+        plt.ylabel("作曲家")
+        plt.savefig(os.path.join(self.save_path, "composer_counts.png"))
+        plt.clf()
 
 
 if __name__ == "__main__":
@@ -77,3 +102,6 @@ if __name__ == "__main__":
 
     company_counts = music_analysis.count_company_music()
     music_analysis.pie_company_music(company_counts)
+
+    composer_counts = music_analysis.count_composer_frequency()
+    music_analysis.plot_composer_counts(composer_counts, top_n=30)

@@ -109,6 +109,12 @@ def main():
         year_counts = music_analysis.count_year_music()
         music_analysis.plot_year_music_trend(year_counts)
 
+        company_counts = music_analysis.count_company_music()
+        music_analysis.pie_company_music(company_counts)
+
+        composer_counts = music_analysis.count_composer_frequency()
+        music_analysis.plot_composer_counts(composer_counts, top_n=30)
+
 
 if __name__ == "__main__":
     main()
