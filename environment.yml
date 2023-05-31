@@ -1,0 +1,12 @@
+name: bangumi-analysis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - beautifulsoup4
+  - lxml
+  - matplotlib
+  - pandas
+  - requests
+  - seaborn
+  - wordcloud
