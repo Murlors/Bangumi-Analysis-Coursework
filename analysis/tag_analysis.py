@@ -126,7 +126,7 @@ if __name__ == "__main__":
     tag_analysis = TagAnalysis("data/music_infos.csv")
 
     tag_counts = tag_analysis.count_tag_frequency(10)
-    tag_analysis.plot_tag_counts(tag_counts, 20)
+    tag_analysis.plot_tag_counts(tag_counts, 32)
 
     tag_analysis.generate_wordcloud(tag_counts)
 
