@@ -50,13 +50,12 @@ class TagAnalysis:
             tag_counts (Counter): tag数量统计结果
             top_n (int): 展示的tag数量
         """
-        most_common = dict(tag_counts.most_common(top_n))
-        plt.barh(
-            list(most_common.keys()),
-            list(most_common.values()),
-            color="steelblue",
-            alpha=0.8,
+        tag_counts_df = (
+            pd.DataFrame(tag_counts.most_common(top_n * 2), columns=["tag", "count"])
+            .loc[lambda df: ~df["tag"].str.match(r"\d{4}")]
+            .head(top_n)
         )
+        sns.barplot(x="count", y="tag", data=tag_counts_df, log=True)
         plt.title("tag数量统计")
         plt.xlabel("数量")
         plt.ylabel("tag")
