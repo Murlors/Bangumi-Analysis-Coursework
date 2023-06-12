@@ -89,11 +89,11 @@ def main():
     )
 
     tag_counts = tag_analysis.count_tag_frequency(min_count=10)
-    tag_analysis.plot_tag_counts(tag_counts, top_n=30)
+    tag_analysis.plot_tag_counts(tag_counts, top_n=32)
 
     tag_analysis.generate_wordcloud(tag_counts)
 
-    tag_year_counts = tag_analysis.count_tag_year_frequency(min_count=100, top_n=30)
+    tag_year_counts = tag_analysis.count_tag_year_frequency(min_count=100, top_n=32)
     tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
 
     if args.type == "music":

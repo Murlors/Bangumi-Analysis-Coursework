@@ -81,7 +81,7 @@ class TagAnalysis:
         ).generate_from_frequencies(tag_counts)
         wordcloud.to_file(os.path.join(self.save_path, "tag_wordcloud.png"))
 
-    def count_tag_year_frequency(self, min_count=100, top_n=30):
+    def count_tag_year_frequency(self, min_count=100, top_n=32):
         """
         计算不同年份和不同tag之间的关系
 
@@ -92,17 +92,13 @@ class TagAnalysis:
         Returns:
             DataFrame: 不同年份和不同tag之间的关系
         """
+        tag_df = pd.json_normalize(self.data["tags"]).fillna(0).astype(int)
+        tag_year_df = tag_df.assign(year=self.data["year"]).groupby("year").sum()
         tag_year_counts = (
-            pd.json_normalize(self.data["tags"])
-            .fillna(0)
-            .astype(int)
-            .assign(year=self.data["year"])
-            .groupby("year")
-            .sum()
-            .T.loc[lambda df: df.sum(axis=1) > min_count]
-            .nlargest(top_n, columns="2020")
+            tag_year_df.sum(axis=0).loc[lambda s: s > min_count].nlargest(top_n)
         )
-        return tag_year_counts
+        tag_year_counts_df = tag_year_df[tag_year_counts.index].T
+        return tag_year_counts_df
 
     def plot_tag_year_counts_heatmap(self, tag_year_counts):
         """
@@ -135,5 +131,5 @@ if __name__ == "__main__":
 
     tag_analysis.generate_wordcloud(tag_counts)
 
-    tag_year_counts = tag_analysis.count_tag_year_frequency(100, 30)
+    tag_year_counts = tag_analysis.count_tag_year_frequency(100, 32)
     tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
