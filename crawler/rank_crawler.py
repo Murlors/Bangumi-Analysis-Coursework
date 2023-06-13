@@ -52,7 +52,7 @@ class RankCrawler(BaseCrawler):
         subject_codes = set()
         for page in range(self.start_page, self.end_page + 1):
             url = self.url + f"&page={page}"
-            html = super().fetch_data(url)
+            html = super().fetch_data([url])[0]
             if not html:
                 break
             soup = BeautifulSoup(html, "lxml")

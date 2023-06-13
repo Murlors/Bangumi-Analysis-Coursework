@@ -79,7 +79,7 @@ def main():
     )
     if not os.path.exists(subject_codes_path):
         rank_crawler = crawler.RankCrawler(args.type, args.path, args.start, args.end)
-        subject_codes = rank_crawler.get_subject_codes()
+        subject_codes = list(rank_crawler.get_subject_codes())
     else:
         with open(subject_codes_path, "r") as f:
             # skip header
