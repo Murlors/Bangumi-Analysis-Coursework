@@ -10,30 +10,29 @@ import analysis
 def get_hparams():
     """
     获取命令行参数
-    
+
     Returns:
         ArgumentParser: 命令行参数解析器
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-p", "--path", type=str, help="本地保存的信息路径")
-    parser.add_argument("-fig", "--figure", type=str, help="本地保存的图片路径")
-    parser.add_argument("-t", "--type", type=str, help="分析的数据类别")
-
+    parser.add_argument("-p", "--path", type=str, default="data", help="本地保存的信息路径")
     parser.add_argument(
-        "-cfg", "--config", type=str, default="config.yml", help="配置文件路径"
+        "-fig", "--figure", type=str, default="figures", help="本地保存的图片路径"
     )
+    parser.add_argument("-t", "--type", type=str, default="anime", help="分析的数据类别")
 
+    parser.add_argument("-cfg", "--config", type=str, help="配置文件路径")
     return parser
 
 
 def get_config(config_path):
     """
     读取配置文件
-    
+
     Args:
         config_path (str): 配置文件路径
-        
+
     Returns:
         dict: 包含配置信息的字典
     """
@@ -45,10 +44,10 @@ def get_config(config_path):
 def parse_args(parser):
     """
     解析命令行参数
-    
+
     Args:
         parser (ArgumentParser): 命令行参数解析器
-        
+
     Returns:
         Namespace: 包含命令行参数的命名空间
     """
@@ -60,9 +59,6 @@ def parse_args(parser):
         args.figure = config["figure"]["path"]
         args.rcParams = config["figure"]["rcParams"]
     else:
-        args.type = "music"
-        args.path = "data"
-        args.figure = "figures"
         args.rcParams = {
             "font.family": "Microsoft YaHei",
             "savefig.dpi": 300,
@@ -85,7 +81,7 @@ def main():
     plt.rcParams.update(args.rcParams)
 
     tag_analysis = analysis.TagAnalysis(
-        os.path.join(args.path, f"{args.type}_infos.csv")
+        args.type, os.path.join(args.path, f"{args.type}_infos.csv")
     )
 
     tag_counts = tag_analysis.count_tag_frequency(min_count=10)

@@ -10,33 +10,32 @@ import crawler
 def get_hparams():
     """
     获取命令行参数
-    
+
     Returns:
         ArgumentParser: 命令行参数解析器
     """
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-p", "--path", type=str, help="本地保存的信息路径")
-    parser.add_argument("-t", "--type", type=str, help="爬取的条目类型")
+    parser.add_argument("-p", "--path", type=str, default="data", help="本地保存的信息路径")
+    parser.add_argument("-t", "--type", type=str, default="music", help="爬取的条目类型")
 
-    parser.add_argument(
-        "-cfg", "--config", type=str, default="config.yml", help="配置文件路径"
-    )
+    parser.add_argument("-cfg", "--config", type=str, help="配置文件路径")
 
-    parser.add_argument("-s", "--start", type=int, help="爬取的开始页数")
-    parser.add_argument("-e", "--end", type=int, help="爬取的结束页数")
+    parser.add_argument("-s", "--start", type=int, default=1, help="爬取的开始页数")
+    parser.add_argument("-e", "--end", type=int, default=50, help="爬取的结束页数")
+
     parser.add_argument("-ua", "--user-agent", type=str, help="User-Agent")
-
+    parser.add_argument("-at", "--access-token", type=str, help="Access Token")
     return parser
 
 
 def get_config(config_path):
     """
     读取配置文件
-    
+
     Args:
         config_path (str): 配置文件路径
-        
+
     Returns:
         dict: 包含配置信息的字典
     """
@@ -48,10 +47,10 @@ def get_config(config_path):
 def parse_args(parser):
     """
     解析命令行参数
-    
+
     Args:
         parser (ArgumentParser): 命令行参数解析器
-        
+
     Returns:
         Namespace: 包含命令行参数的命名空间
     """
@@ -63,11 +62,6 @@ def parse_args(parser):
         args.end = config["crawler"]["end"]
         args.user_agent = config["crawler"]["user-agent"]
         args.path = config["data"]["path"]
-    else:
-        args.type = "music"
-        args.start = 1
-        args.end = 1
-        args.path = "data"
     if not os.path.exists(args.path):
         os.makedirs(args.path)
     return args
@@ -93,7 +87,10 @@ def main():
             next(csv_reader)
             subject_codes = [row[0] for row in csv_reader]
     # get music subject info
-    headers = {"User-Agent": args.user_agent}
+    headers = {
+        "User-Agent": args.user_agent,
+        "Authorization": f"Bearer {args.access_token}",
+    }
 
     if args.type == "music":
         music_crawler = crawler.MusicCrawler(args.path, headers)

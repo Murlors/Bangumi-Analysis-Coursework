@@ -50,6 +50,7 @@ crawler:
   start: 1 # start page
   end: 50 # end page
   user-agent: your_name/bangumi-analysis (https://github.com/your_name/bangumi-analysis)
+  access-token: # access token
 
 data:
   path: 'data' # data path

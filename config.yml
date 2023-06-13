@@ -3,6 +3,7 @@ crawler:
   start: 1 # start page
   end: 50 # end page
   user-agent: 'murlors/bangumi-analysis-coursework (https://github.com/murlors/Bangumi-Analysis-Coursework)'
+  access-token: # insert your access token here
 
 data:
   path: 'data' # data path
