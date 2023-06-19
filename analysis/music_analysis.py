@@ -112,6 +112,32 @@ class MusicAnalysis:
         plt.savefig(os.path.join(self.save_path, "composer_music_counts.png"))
         plt.clf()
 
+    def facet_composer_counts(self, layout):
+        """
+        绘制作曲家数量统计图
+
+        Args:
+            top_n (int): 统计出现次数最多的前n个作曲家
+        """
+        composer_year_data = (
+            self.data[["composers", "year"]]
+            .explode("composers")
+            .dropna(subset=["composers"])
+        )
+        composer_year_counts = (
+            composer_year_data.groupby(["composers", "year"])
+            .size()
+            .unstack(level=0, fill_value=0)
+        )
+        top_composers = (
+            composer_year_counts.sum().nlargest(layout[0] * layout[1]).index.tolist()
+        )
+        composer_year_counts = composer_year_counts[top_composers]
+        composer_year_counts.plot(
+            subplots=True, layout=layout, sharex=True, sharey=True
+        )
+        plt.savefig(os.path.join(self.save_path, "composer_year_counts.png"))
+
 
 if __name__ == "__main__":
     plt.rcParams.update(
@@ -132,3 +158,5 @@ if __name__ == "__main__":
 
     composer_counts = music_analysis.count_composer_frequency()
     music_analysis.plot_composer_counts(composer_counts, top_n=32)
+
+    music_analysis.facet_composer_counts((4, 4))
