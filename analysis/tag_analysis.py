@@ -8,7 +8,7 @@ from wordcloud import WordCloud
 
 
 class TagAnalysis:
-    def __init__(self, file_path, save_path="figures"):
+    def __init__(self, type, file_path, save_path="figures"):
         """
         初始化TagAnalysis对象
 
@@ -16,12 +16,13 @@ class TagAnalysis:
             file_path (str): 数据文件路径
             save_path (str, optional): 图片保存路径. Defaults to "figures".
         """
-        self.data = pd.read_csv(file_path, parse_dates=["date"])
+        self.type = type
+        self.data = pd.read_csv(file_path, parse_dates=["date"], low_memory=False)
         self.data["tags"] = self.data["tags"].apply(eval)
         self.data = self.data.dropna(subset=["date"])
-        self.data[["year", "month", "day"]] = (
-            self.data["date"].dt.strftime("%Y-%m-%d").str.split("-", expand=True)
-        )
+        self.data[["year", "month", "day"]] = [
+            (date.year, date.month, date.day) for date in self.data["date"]
+        ]
         self.save_path = save_path
 
     def count_tag_frequency(self, min_count):
@@ -55,11 +56,11 @@ class TagAnalysis:
             .loc[lambda df: ~df["tag"].str.match(r"\d{4}")]
             .head(top_n)
         )
-        sns.barplot(x="count", y="tag", data=tag_counts_df, log=True)
+        sns.barplot(x="count", y="tag", data=tag_counts_df)
         plt.title("tag数量统计")
         plt.xlabel("数量")
         plt.ylabel("tag")
-        plt.savefig(os.path.join(self.save_path, "tag_counts.png"))
+        plt.savefig(os.path.join(self.save_path, f"tag_{self.type}_counts.png"))
         plt.clf()
 
     def generate_wordcloud(self, tag_counts):
@@ -76,41 +77,48 @@ class TagAnalysis:
             font_path="msyh.ttc",
             width=3840,
             height=2160,
-            max_font_size=800,
+            max_font_size=500,
         ).generate_from_frequencies(tag_counts)
-        wordcloud.to_file(os.path.join(self.save_path, "tag_wordcloud.png"))
+        wordcloud.to_file(
+            os.path.join(self.save_path, f"tag_{self.type}_wordcloud.png")
+        )
 
-    def count_tag_year_frequency(self, min_count=100, top_n=32):
+    def count_tag_year_frequency(self, min_count=100):
         """
         计算不同年份和不同tag之间的关系
 
         Args:
             min_count (int, optional): 最小选择量. Defaults to 100.
-            top_n (int, optional): 展示的tag数量. Defaults to 30.
 
         Returns:
             DataFrame: 不同年份和不同tag之间的关系
         """
         tag_df = pd.json_normalize(self.data["tags"]).fillna(0).astype(int)
-        tag_year_df = tag_df.assign(year=self.data["year"]).groupby("year").sum()
-        tag_year_counts = (
-            tag_year_df.sum(axis=0).loc[lambda s: s > min_count].nlargest(top_n)
+        tag_year_df = tag_df.groupby(self.data["year"]).sum()
+        tag_counts = (
+            tag_year_df.sum(axis=0)
+            .loc[lambda s: s > min_count]
+            .sort_values(ascending=False)
         )
-        tag_year_counts_df = tag_year_df[tag_year_counts.index].T
+        tag_year_counts_df = tag_year_df[tag_counts.index]
         return tag_year_counts_df
 
-    def plot_tag_year_counts_heatmap(self, tag_year_counts):
+    def plot_tag_year_counts_heatmap(self, tag_year_counts_df, top_n=32):
         """
         使用热力图展示不同年份和不同tag之间的关系
 
         Args:
-            tag_year_counts (DataFrame): 不同年份和不同tag之间的关系
+            tag_year_counts_df (DataFrame): 不同年份和不同tag之间的关系
+            top_n (int, optional): 展示的tag数量. Defaults to 32.
         """
-        sns.heatmap(tag_year_counts, cmap="Blues", vmax=500)
+        plt.figure(figsize=(16, 8))
+        sns.heatmap(tag_year_counts_df.T.head(top_n), cmap="Blues", vmax=10000)
         plt.xlabel("年份")
         plt.ylabel("tag")
         plt.xticks(rotation=45)
-        plt.savefig(os.path.join(self.save_path, "tag_year_counts_heatmap.png"))
+        plt.savefig(
+            os.path.join(self.save_path, f"tag_year_counts_{self.type}_heatmap.png")
+        )
         plt.clf()
 
 
@@ -125,10 +133,10 @@ if __name__ == "__main__":
     )
     tag_analysis = TagAnalysis("data/music_infos.csv")
 
-    tag_counts = tag_analysis.count_tag_frequency(10)
+    tag_counts = tag_analysis.count_tag_frequency(100)
     tag_analysis.plot_tag_counts(tag_counts, 32)
 
     tag_analysis.generate_wordcloud(tag_counts)
 
-    tag_year_counts = tag_analysis.count_tag_year_frequency(100, 32)
-    tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
+    tag_year_counts_df = tag_analysis.count_tag_year_frequency(100)
+    tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts_df, 32)

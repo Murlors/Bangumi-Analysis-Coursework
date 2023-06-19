@@ -40,7 +40,7 @@ class MusicAnalysis:
         Args:
             year_counts (pandas.Series): 包含每年优秀音乐数量的Series
         """
-        sns.lineplot(x=year_counts.index, y=year_counts.values)
+        sns.barplot(x=year_counts.index, y=year_counts.values)
         plt.xticks(rotation=45)
         plt.xlabel("年份")
         plt.ylabel("优秀音乐数量")
@@ -104,13 +104,12 @@ class MusicAnalysis:
             composer_counts (pandas.Series): 包含每个作曲家出现次数的Series
             top_n (int): 统计出现次数最多的前n个作曲家
         """
-
         most_common = composer_counts.nlargest(top_n)
         sns.barplot(x=most_common.values, y=most_common.index)
         plt.title("作曲家数量统计")
         plt.xlabel("数量")
         plt.ylabel("作曲家")
-        plt.savefig(os.path.join(self.save_path, "composer_counts.png"))
+        plt.savefig(os.path.join(self.save_path, "composer_music_counts.png"))
         plt.clf()
 
 
