@@ -37,7 +37,7 @@ class MusicCrawler(BaseCrawler):
     def save_music_info(self, music_infos):
         """
         将音乐信息保存到CSV文件中
-        
+
         Args:
             music_infos (list): 包含音乐信息的列表
         """
@@ -48,10 +48,10 @@ class MusicCrawler(BaseCrawler):
     def get_music_info(self, subject_codes):
         """
         获取音乐信息
-        
+
         Args:
             subject_codes (list): 包含音乐条目代码的列表
-            
+
         Returns:
             list[dict]: 包含多个音乐信息字典的列表，音乐信息如：
             id, type, name, name_cn, summary, nsfw, locked, platform, images[large,common,medium,small,grid](cover),
@@ -74,7 +74,7 @@ class MusicCrawler(BaseCrawler):
     def process_music_info(self, music_infos, json_datas):
         """
         处理音乐信息
-        
+
         Args:
             music_infos (list): 包含音乐信息的列表
             json_datas (list): 包含音乐信息的JSON数据

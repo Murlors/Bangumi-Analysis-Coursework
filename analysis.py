@@ -89,8 +89,8 @@ def main():
 
     tag_analysis.generate_wordcloud(tag_counts)
 
-    tag_year_counts = tag_analysis.count_tag_year_frequency(min_count=100, top_n=32)
-    tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts)
+    tag_year_counts = tag_analysis.count_tag_year_frequency(min_count=100)
+    tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts, top_n=32)
 
     if args.type == "music":
         music_analysis = analysis.MusicAnalysis(
@@ -104,6 +104,14 @@ def main():
 
         composer_counts = music_analysis.count_composer_frequency()
         music_analysis.plot_composer_counts(composer_counts, top_n=30)
+    elif args.type == "anime":
+        anime_analysis = analysis.AnimeAnalysis(
+            os.path.join(args.path, f"anime_infos.csv")
+        )
+        year_counts = anime_analysis.count_year_anime()
+        anime_analysis.plot_year_anime_trend(year_counts)
+
+        anime_analysis.facet_company_anime(layout=(4, 4))
 
 
 if __name__ == "__main__":

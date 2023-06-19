@@ -83,10 +83,9 @@ class AnimeAnalysis:
             company_year_counts.sum().nlargest(layout[0] * layout[1]).index.tolist()
         )
         company_year_counts = company_year_counts[top_company]
-        company_year_counts.plot(
-            subplots=True, layout=layout, sharex=True, sharey=True
-        )
+        company_year_counts.plot(subplots=True, layout=layout, sharex=True, sharey=True)
         plt.savefig(os.path.join(self.save_path, "company_year_anime.png"))
+
 
 if __name__ == "__main__":
     plt.rcParams.update(
@@ -103,4 +102,4 @@ if __name__ == "__main__":
     anime_analysis.plot_year_anime_trend(year_counts)
 
     company_counts = anime_analysis.count_company_anime()
-    anime_analysis.facet_company_anime((4,4))
+    anime_analysis.facet_company_anime((4, 4))
