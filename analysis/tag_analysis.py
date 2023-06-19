@@ -121,6 +121,51 @@ class TagAnalysis:
         )
         plt.clf()
 
+    def wordcloud_subplots(self, tag_year_counts_df, layout):
+        """
+        使用词云展示不同年份和不同tag之间的关系
+
+        Args:
+            tag_year_counts_df (DataFrame): 不同年份和不同tag之间的关系
+            layout (tuple): 子图布局
+        """
+        top_years = (
+            tag_year_counts_df.sum(axis=1)
+            .nlargest(layout[0] * layout[1])
+            .sort_index()
+            .index.tolist()
+        )
+
+        fig, axes = plt.subplots(
+            nrows=layout[0],
+            ncols=layout[1],
+            figsize=(20, 20),
+            dpi=300,
+        )
+
+        for i, ax in enumerate(axes.flat):
+            if i < len(top_years):
+                year = top_years[i]
+                tag_counts = tag_year_counts_df.loc[year].nlargest(200)
+                wordcloud = WordCloud(
+                    background_color="white",
+                    # max_words=1000,
+                    # font_path="xiaolaisc-regular.ttf",
+                    font_path="msyh.ttc",
+                    width=1600,
+                    height=1600,
+                    max_font_size=400,
+                ).generate_from_frequencies(tag_counts)
+                ax.imshow(wordcloud, interpolation="bilinear")
+                ax.set_title(year, fontdict={"fontsize": 20})
+                ax.axis("off")
+
+        fig.suptitle(f"Top 9 Years with Most Tags", fontsize=30, y=0.99)
+
+        plt.savefig(
+            os.path.join(self.save_path, f"tag_year_counts_{self.type}_wordcloud.png")
+        )
+
 
 if __name__ == "__main__":
     plt.rcParams.update(
@@ -131,7 +176,7 @@ if __name__ == "__main__":
             "figure.autolayout": True,
         }
     )
-    tag_analysis = TagAnalysis("data/music_infos.csv")
+    tag_analysis = TagAnalysis("anime", "data/anime_infos.csv")
 
     tag_counts = tag_analysis.count_tag_frequency(100)
     tag_analysis.plot_tag_counts(tag_counts, 32)
@@ -140,3 +185,5 @@ if __name__ == "__main__":
 
     tag_year_counts_df = tag_analysis.count_tag_year_frequency(100)
     tag_analysis.plot_tag_year_counts_heatmap(tag_year_counts_df, 32)
+
+    tag_analysis.wordcloud_subplots(tag_year_counts_df, (3, 3))
