@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from wordcloud import WordCloud
 
 
 class MusicAnalysis:
@@ -145,6 +146,72 @@ class MusicAnalysis:
         )
         plt.savefig(os.path.join(self.save_path, "composer_year_counts.png"))
 
+    def count_tag_composer_frequency(self, min_count=10):
+        """
+        计算不同作曲家和不同tag之间的关系
+
+        Args:
+            min_count (int, optional): 最小选择量. Defaults to 10.
+
+        Returns:
+            DataFrame: 不同年份和不同tag之间的关系
+        """
+        tag_df = pd.json_normalize(self.data["tags"]).fillna(0).astype(int)
+        composer_df = (
+            self.data[["composers"]].explode("composers").dropna(subset=["composers"])
+        )
+        tag_composers_df = (
+            pd.merge(composer_df, tag_df, left_index=True, right_index=True)
+            .groupby(["composers"])
+            .sum()
+        )
+        tag_counts = (
+            tag_composers_df.sum(axis=0)
+            .loc[lambda s: s > min_count]
+            .sort_values(ascending=False)
+        )
+        tag_composers_counts_df = tag_composers_df[tag_counts.index]
+        return tag_composers_counts_df
+
+    def wordcloud_composer_counts(self, tag_composers_counts_df, layout):
+        """
+        使用词云展示不同作曲家和不同tag之间的关系
+
+        Args:
+            tag_composers_counts_df (DataFrame): 不同年份和不同tag之间的关系
+            layout (tuple): 子图布局
+        """
+        top_composers = (
+            tag_composers_counts_df.astype(bool)
+            .sum(axis=1)
+            .nlargest(layout[0] * layout[1])
+            .index.tolist()
+        )
+        fig, axes = plt.subplots(
+            nrows=layout[0], ncols=layout[1], figsize=(12, 12), dpi=300
+        )
+        for i, ax in enumerate(axes.flat):
+            if i < len(top_composers):
+                composer = top_composers[i]
+                tag_counts = tag_composers_counts_df.loc[composer]
+                wordcloud = WordCloud(
+                    background_color="white",
+                    max_words=1000,
+                    # font_path=r"c:\windows\fonts\xiaolaisc-regular.ttf",
+                    font_path="msyh.ttc",
+                    width=1000,
+                    height=1000,
+                    max_font_size=400,
+                    min_font_size=12,
+                ).generate_from_frequencies(tag_counts)
+                ax.imshow(wordcloud, interpolation="bilinear")
+                ax.set_title(composer, fontdict={"fontsize": 20})
+                ax.axis("off")
+
+        fig.suptitle("Top 9 Composers with Most Tags", fontsize=30)
+
+        plt.savefig(os.path.join(self.save_path, f"tag_composer_counts_wordcloud.png"))
+
 
 if __name__ == "__main__":
     plt.rcParams.update(
@@ -167,3 +234,6 @@ if __name__ == "__main__":
     music_analysis.plot_composer_counts(composer_counts, top_n=32)
 
     music_analysis.facet_composer_counts((4, 4))
+
+    tag_composers_counts_df = music_analysis.count_tag_composer_frequency(min_count=10)
+    music_analysis.wordcloud_composer_counts(tag_composers_counts_df, (3, 3))
