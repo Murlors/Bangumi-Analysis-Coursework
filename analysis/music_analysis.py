@@ -14,13 +14,20 @@ class MusicAnalysis:
             file_path (str): 数据文件路径
             save_path (str, optional): 图片保存路径. Defaults to "figures".
         """
-        self.data = pd.read_csv(file_path, parse_dates=["date"])
-        self.data = self.data.dropna(subset=["date"])
-        self.data["year"] = self.data["date"].dt.year.astype(str)
-        self.data["month"] = self.data["date"].dt.month.astype(str)
-        self.data["day"] = self.data["date"].dt.day.astype(str)
-        self.data["company"] = self.data["厂牌"]
-        self.data["composers"] = self.data["作曲"].str.replace("、", "|").str.split("|")
+        self.data = (
+            pd.read_csv(file_path, parse_dates=["date"], low_memory=False)
+            .dropna(subset=["date"])
+            .assign(
+                year=lambda x: x["date"].dt.year.astype(str),
+                month=lambda x: x["date"].dt.month.astype(str),
+                day=lambda x: x["date"].dt.day.astype(str),
+                company=lambda x: x["厂牌"],
+                composers=lambda x: x["作曲"]
+                .str.translate(str.maketrans("、(", "||"))
+                .str.split("|"),
+                tags=lambda x: x["tags"].apply(eval),
+            )
+        )
         self.save_path = save_path
 
     def count_year_music(self):

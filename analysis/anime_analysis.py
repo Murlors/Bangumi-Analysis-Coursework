@@ -14,16 +14,17 @@ class AnimeAnalysis:
             file_path (str): 数据文件路径
             save_path (str, optional): 图片保存路径. Defaults to "figures".
         """
-        self.data = pd.read_csv(file_path, parse_dates=["date"])
-        self.data = self.data.dropna(subset=["date"])
-        self.data["year"] = self.data["date"].dt.year.astype(str)
-        self.data["month"] = self.data["date"].dt.month.astype(str)
-        self.data["day"] = self.data["date"].dt.day.astype(str)
-        self.data["anime_product"] = (
-            self.data["动画制作"]
-            .str.replace("、", "|")
-            .str.replace("&amp;", "|")
-            .str.split("|")
+        self.data = (
+            pd.read_csv(file_path, parse_dates=["date"], low_memory=False)
+            .dropna(subset=["date"])
+            .assign(
+                year=lambda x: x["date"].dt.year.astype(str),
+                month=lambda x: x["date"].dt.month.astype(str),
+                day=lambda x: x["date"].dt.day.astype(str),
+                anime_product=lambda x: x["动画制作"]
+                .str.translate(str.maketrans("、&（", "|||"))
+                .str.split("|"),
+            )
         )
         self.save_path = save_path
 
