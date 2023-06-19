@@ -95,6 +95,9 @@ def main():
     if args.type == "music":
         music_crawler = crawler.MusicCrawler(args.path, headers)
         music_crawler.get_music_info(subject_codes)
+    elif args.type == "anime":
+        anime_crawler = crawler.AnimeCrawler(args.path, headers)
+        anime_crawler.get_anime_info(subject_codes)
 
 
 if __name__ == "__main__":
