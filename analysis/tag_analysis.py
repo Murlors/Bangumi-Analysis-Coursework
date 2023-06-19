@@ -20,9 +20,9 @@ class TagAnalysis:
         self.data = pd.read_csv(file_path, parse_dates=["date"], low_memory=False)
         self.data["tags"] = self.data["tags"].apply(eval)
         self.data = self.data.dropna(subset=["date"])
-        self.data[["year", "month", "day"]] = [
-            (date.year, date.month, date.day) for date in self.data["date"]
-        ]
+        self.data["year"] = self.data["date"].dt.year.astype(str)
+        self.data["month"] = self.data["date"].dt.month.astype(str)
+        self.data["day"] = self.data["date"].dt.day.astype(str)
         self.save_path = save_path
 
     def count_tag_frequency(self, min_count):

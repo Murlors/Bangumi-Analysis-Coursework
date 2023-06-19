@@ -16,9 +16,9 @@ class MusicAnalysis:
         """
         self.data = pd.read_csv(file_path, parse_dates=["date"])
         self.data = self.data.dropna(subset=["date"])
-        self.data[["year", "month", "day"]] = (
-            self.data["date"].dt.strftime("%Y-%m-%d").str.split("-", expand=True)
-        )
+        self.data["year"] = self.data["date"].dt.year.astype(str)
+        self.data["month"] = self.data["date"].dt.month.astype(str)
+        self.data["day"] = self.data["date"].dt.day.astype(str)
         self.data["company"] = self.data["厂牌"]
         self.data["composers"] = self.data["作曲"].str.replace("、", "|").str.split("|")
         self.save_path = save_path
