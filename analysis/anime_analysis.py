@@ -65,7 +65,7 @@ class AnimeAnalysis:
 
     def facet_company_anime(self, layout):
         """
-        绘制每个公司优秀动画数量的饼图
+        绘制每个公司优秀动画数量的分面图
 
         Args:
             company_counts (pandas.Series): 包含每个公司优秀动画数量的Series
@@ -85,6 +85,8 @@ class AnimeAnalysis:
         )
         company_year_counts = company_year_counts[top_company]
         company_year_counts.plot(subplots=True, layout=layout, sharex=True, sharey=True)
+
+        plt.suptitle(f"Top {layout[0] * layout[1]} Company Anime Counts")
         plt.savefig(os.path.join(self.save_path, "company_year_anime.png"))
 
 
