@@ -125,7 +125,7 @@ class MusicAnalysis:
         绘制作曲家数量统计图
 
         Args:
-            top_n (int): 统计出现次数最多的前n个作曲家
+            layout tuple(int, int): 分面布局
         """
         composer_year_data = (
             self.data[["composers", "year"]]
